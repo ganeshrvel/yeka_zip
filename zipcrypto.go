@@ -4,11 +4,12 @@ import (
 	"io"
 	"bytes"
 	"hash/crc32"
+	"io"
 )
 
 type ZipCrypto struct {
 	password []byte
-	Keys [3]uint32
+	Keys     [3]uint32
 }
 
 func NewZipCrypto(passphrase []byte) *ZipCrypto {
@@ -55,7 +56,7 @@ func (z *ZipCrypto) Decrypt(chiper []byte) []byte {
 	length := len(chiper)
 	plain := make([]byte, length)
 	for i, c := range chiper {
-		v := c ^ z.magicByte();
+		v := c ^ z.magicByte()
 		z.updateKeys(v)
 		plain[i] = v
 	}
@@ -63,7 +64,7 @@ func (z *ZipCrypto) Decrypt(chiper []byte) []byte {
 }
 
 func crc32update(pCrc32 uint32, bval byte) uint32 {
-	return crc32.IEEETable[(pCrc32 ^ uint32(bval)) & 0xff] ^ (pCrc32 >> 8)
+	return crc32.IEEETable[(pCrc32^uint32(bval))&0xff] ^ (pCrc32 >> 8)
 }
 
 func ZipCryptoDecryptor(r *io.SectionReader, password []byte) (*io.SectionReader, error) {
@@ -102,7 +103,7 @@ func (z *zipCryptoWriter) Write(p []byte) (n int, err error) {
 	return
 }
 
-func ZipCryptoEncryptor(i io.Writer, pass passwordFn, fw *fileWriter) (io.Writer, error)  {
+func ZipCryptoEncryptor(i io.Writer, pass passwordFn, fw *fileWriter) (io.Writer, error) {
 	z := NewZipCrypto(pass())
 	zc := &zipCryptoWriter{i, z, true, fw}
 	return zc, nil

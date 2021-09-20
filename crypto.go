@@ -388,7 +388,7 @@ func encryptStream(key []byte, w io.Writer) (io.Writer, error) {
 // data. The authcode will be written out in fileWriter.close().
 func newEncryptionWriter(w io.Writer, password passwordFn, fw *fileWriter, aesstrength byte) (io.Writer, error) {
 	keysize := aesKeyLen(aesstrength)
-	salt := make([]byte, keysize / 2)
+	salt := make([]byte, keysize/2)
 	_, err := rand.Read(salt[:])
 	if err != nil {
 		return nil, errors.New("zip: unable to generate random salt")
