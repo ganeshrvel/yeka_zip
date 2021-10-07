@@ -124,7 +124,7 @@ func (rc *ReadCloser) Close() error {
 // Most callers should instead use Open, which transparently
 // decompresses data and verifies checksums.
 func (f *File) DataOffset() (offset int64, err error) {
-	bodyOffset, err := f.findBodyOffset()
+	bodyOffset, err := f.getHeaderLength()
 	if err != nil {
 		return
 	}
@@ -134,7 +134,7 @@ func (f *File) DataOffset() (offset int64, err error) {
 // Open returns a ReadCloser that provides access to the File's contents.
 // Multiple files may be read concurrently.
 func (f *File) Open() (rc io.ReadCloser, err error) {
-	bodyOffset, err := f.findBodyOffset()
+	bodyOffset, err := f.getHeaderLength()
 	if err != nil {
 		return
 	}
@@ -227,9 +227,9 @@ func (r *checksumReader) Read(b []byte) (n int, err error) {
 
 func (r *checksumReader) Close() error { return r.rc.Close() }
 
-// findBodyOffset does the minimum work to verify the file has a header
+// getHeaderLength does the minimum work to verify the file has a header
 // and returns the file body offset.
-func (f *File) findBodyOffset() (int64, error) {
+func (f *File) getHeaderLength() (int64, error) {
 	var buf [fileHeaderLen]byte
 	if _, err := f.zipr.ReadAt(buf[:], f.headerOffset); err != nil {
 		return 0, err
