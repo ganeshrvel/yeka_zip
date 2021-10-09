@@ -31,7 +31,7 @@ func (z *ZipCrypto) init() {
 
 func (z *ZipCrypto) updateKeys(byteValue byte) {
 	z.Keys[0] = crc32update(z.Keys[0], byteValue)
-	z.Keys[1] = (z.Keys[1]+z.Keys[0]&0xff)*134775813 + 1
+	z.Keys[1] = (z.Keys[1]+z.Keys[0]&0xff)*0x8088405 + 1
 	z.Keys[2] = crc32update(z.Keys[2], (byte)(z.Keys[1]>>24))
 }
 
