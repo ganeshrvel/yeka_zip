@@ -147,8 +147,7 @@ func (f *File) Open() (rc io.ReadCloser, err error) {
 	if f.IsEncrypted() {
 
 		if f.ae == 0 {
-			if r, err = ZipCryptoDecryptor(rr, f.password()); err != nil {
-				return
+			if r, err = ZipCryptoDecryptor(rr, f); err != nil {
 			}
 		} else if r, err = newDecryptionReader(rr, f); err != nil {
 			return
