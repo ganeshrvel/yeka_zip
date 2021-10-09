@@ -136,7 +136,7 @@ func (f *File) DataOffset() (offset int64, err error) {
 func (f *File) Open() (rc io.ReadCloser, err error) {
 	bodyOffset, err := f.getHeaderLength()
 	if err != nil {
-		return
+		return nil, err
 	}
 	// If f is encrypted, CompressedSize64 includes salt, pwvv, encrypted data,
 	// and auth code lengths
@@ -145,12 +145,12 @@ func (f *File) Open() (rc io.ReadCloser, err error) {
 	rr := io.NewSectionReader(f.zipr, f.headerOffset+bodyOffset, size)
 	// check for encryption
 	if f.IsEncrypted() {
-
 		if f.ae == 0 {
 			if r, err = ZipCryptoDecryptor(rr, f); err != nil {
+				return nil, err
 			}
 		} else if r, err = newDecryptionReader(rr, f); err != nil {
-			return
+			return nil, err
 		}
 	} else {
 		r = rr
@@ -158,12 +158,12 @@ func (f *File) Open() (rc io.ReadCloser, err error) {
 	dcomp := decompressor(f.Method)
 	if dcomp == nil {
 		err = ErrAlgorithm
-		return
+		return nil, err
 	}
 	rc = dcomp(r)
 	// If AE-2, skip CRC and possible dataDescriptor
 	if f.isAE2() {
-		return
+		return rc, nil
 	}
 	var desr io.Reader
 	if f.hasDataDescriptor() {
@@ -175,7 +175,7 @@ func (f *File) Open() (rc io.ReadCloser, err error) {
 		f:    f,
 		desr: desr,
 	}
-	return
+	return rc, nil
 }
 
 type checksumReader struct {
