@@ -11,7 +11,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/yeka/zip"
+	"github.com/ganeshrvel/yeka_zip"
 )
 
 func ExampleWriter() {
